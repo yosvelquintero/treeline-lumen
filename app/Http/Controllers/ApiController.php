@@ -1,8 +1,10 @@
-<?php namespace App\Http\Controllers;
+<?php
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Response as IlluminateResponse;
 
-class ApiController extends Controller {
+class ApiController extends Controller
+{
 
     /**
      * @var int
@@ -32,7 +34,7 @@ class ApiController extends Controller {
      * @param string $message
      * @return mixed
      */
-    public function respondNotFound($message = 'Nije pronađeno!')
+    public function respondNotFound($message = 'Not found!')
     {
         return $this->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)->respondWithError($message);
     }
@@ -41,7 +43,7 @@ class ApiController extends Controller {
      * @param string $message
      * @return mixed
      */
-    public function respondInternalError($message = 'Dogodila se greška!')
+    public function respondInternalError($message = 'An error occured!')
     {
         return $this->setStatusCode(IlluminateResponse::HTTP_INTERNAL_SERVER_ERROR)->respondWithError($message);
     }
@@ -72,11 +74,9 @@ class ApiController extends Controller {
      * @param string $message
      * @return mixed
      */
-    public function respondWithValidationError($message = 'Neuspješna validacija!')
+    public function respondWithValidationError($message = 'Unsuccessful validation!')
     {
-        return $this->setStatusCode(IlluminateResponse::HTTP_UNPROCESSABLE_ENTITY)->respondWithError([
-            'message' => $message
-        ]);
+        return $this->setStatusCode(IlluminateResponse::HTTP_UNPROCESSABLE_ENTITY)->respondWithError($message);
     }
 
     /**
@@ -117,5 +117,4 @@ class ApiController extends Controller {
 
         return $header;
     }
-
 }

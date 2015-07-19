@@ -1,13 +1,18 @@
-<?php namespace App;
+<?php
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Link extends Model {
+class Link extends Model
+{
 
     /**
      * @var array
      */
-    protected $fillable = ['name', 'href'];
+    protected $fillable = [
+        'name',
+        'href'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -16,5 +21,4 @@ class Link extends Model {
     {
         return $this->belongsTo('App\Note');
     }
-
 }

@@ -1,10 +1,12 @@
-<?php namespace App\Transformers;
+<?php
+namespace App\Transformers;
 
-use App\Note;
 use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
+use App\Note;
 
-class NoteTransformer extends TransformerAbstract {
+class NoteTransformer extends TransformerAbstract
+{
 
     protected $defaultIncludes = [
         'links'
@@ -13,9 +15,10 @@ class NoteTransformer extends TransformerAbstract {
     public function transform(Note $note)
     {
         return [
-            'stamp'       => $note->stamp->format('d/m/Y'),
+            'id'          => (integer) $note->id,
             'title'       => $note->title,
-            'description' => $note->description
+            'description' => $note->description,
+            'stamp'       => $note->stamp->format('d/m/Y')
         ];
     }
 
@@ -25,5 +28,4 @@ class NoteTransformer extends TransformerAbstract {
 
         return $this->collection($links, new LinkTransformer);
     }
-
 }

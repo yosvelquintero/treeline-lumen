@@ -2,12 +2,20 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model {
+class Project extends Model
+{
 
     /**
      * @var array
      */
-    protected $fillable = ['name', 'url', 'description', 'repository'];
+    protected $fillable = [
+        'name',
+        'status',
+        'url',
+        'description',
+        'repository',
+        'is_active'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -21,5 +29,4 @@ class Project extends Model {
     {
         return $this->hasMany('App\Note');
     }
-
 }

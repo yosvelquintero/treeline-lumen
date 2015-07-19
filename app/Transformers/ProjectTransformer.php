@@ -1,9 +1,11 @@
-<?php namespace App\Transformers;
+<?php
+namespace App\Transformers;
 
-use App\Project;
 use League\Fractal\TransformerAbstract;
+use App\Project;
 
-class ProjectTransformer extends TransformerAbstract {
+class ProjectTransformer extends TransformerAbstract
+{
 
     protected $defaultIncludes = [
         'notes'
@@ -12,13 +14,14 @@ class ProjectTransformer extends TransformerAbstract {
     public function transform(Project $project)
     {
         return [
-            'id'           => $project->id,
+            'id'           => (integer) $project->id,
+            'status'       => $project->status->name,
             'name'         => $project->name,
             'description'  => $project->description,
-            'completed_at' => $project->completed_at,
             'repository'   => $project->repository,
             'url'          => $project->url,
-            'status'       => $project->status->name,
+            'active'       => (boolean) $project->is_active,
+            'completed_at' => $project->completed_at,
             'updated_at'   => $project->updated_at->format('F d, Y')
         ];
     }
@@ -29,5 +32,4 @@ class ProjectTransformer extends TransformerAbstract {
 
         return $this->collection($notes, new NoteTransformer);
     }
-
 }

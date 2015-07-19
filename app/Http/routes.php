@@ -11,21 +11,19 @@
 |
 */
 
-$app->get('/', function () use ($app)
-{
-    return $app->welcome();
+// $app->get('/', function () use ($app) {
+//     return $app->welcome();
+// });
+
+$app->group(['prefix' => 'api', 'middleware' => 'jwt.auth'], function ($app) {
+    $app->post('/projects', 'App\Http\Controllers\ProjectsController@store');
+    $app->put('/projects/{id}', 'App\Http\Controllers\ProjectsController@update');
+    $app->delete('/projects/{id}', 'App\Http\Controllers\ProjectsController@destroy');
 });
 
-$app->group(['prefix' => 'projects', 'middleware' => 'jwt.auth'], function($app) {
-    $app->post('/', 'App\Http\Controllers\ProjectsController@store');
-    $app->put('/{projectId}', 'App\Http\Controllers\ProjectsController@update');
-    $app->delete('/{projectId}', 'App\Http\Controllers\ProjectsController@destroy');
-});
-
-$app->group(['prefix' => 'projects'], function ($app)
-{
-    $app->get('/', 'App\Http\Controllers\ProjectsController@index');
-    $app->get('/{projectId}', 'App\Http\Controllers\ProjectsController@show');
+$app->group(['prefix' => 'api'], function ($app) {
+    $app->get('/projects', 'App\Http\Controllers\ProjectsController@index');
+    $app->get('/projects/{id}', 'App\Http\Controllers\ProjectsController@show');
 });
 
 $app->post('auth/login', 'App\Http\Controllers\Auth\AuthController@postLogin');

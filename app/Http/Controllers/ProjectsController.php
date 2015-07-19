@@ -1,13 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
+namespace App\Http\Controllers;
 
-use App\Project;
-use App\Transformers\ProjectTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Exception\HttpResponseException;
+use Validator;
+use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use App\Transformers\ProjectTransformer;
+use App\Project;
 
-class ProjectsController extends ApiController {
+class ProjectsController extends ApiController
+{
+
+    protected $project;
 
     protected $validationRules = [
         'name'         => 'required|unique:projects,name|min:3',
@@ -15,102 +23,121 @@ class ProjectsController extends ApiController {
         'website'      => 'url',
         'repository'   => 'url',
         'status'       => 'required|exists:statuses,id',
+        'is_active'    => 'required',
         'completed_at' => 'date_format:d/m/Y'
     ];
 
-    protected $project;
-
-    function __construct(Project $project)
+    public function __construct(Project $project)
     {
         $this->project = $project;
     }
 
-
     /**
      * @param Manager $fractal
      * @param ProjectTransformer $projectTransformer
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Manager $fractal, ProjectTransformer $projectTransformer)
     {
-        $projects = $this->project->with(['notes.links'])->get();
-
+        $projects   = $this->project->with(['notes.links'])->get();
         $collection = new Collection($projects, $projectTransformer);
-
-        $data = $fractal->createData($collection)->toArray();
+        $data       = $fractal->createData($collection)->toArray();
 
         return $this->respondWithCORS($data);
     }
 
     /**
      * @param Request $request
+     *
      * @return mixed
      */
     public function store(Request $request)
     {
-        $this->validate($request, $this->validationRules);
+        // $this->validate($request, $this->validationRules);
 
-        $this->project->name = $request->get('name');
-        $this->project->description = $request->get('description');
-        $this->project->url = $request->get('url');
-        $this->project->repository = $request->get('repository');
+        try {
+            $this->validate($request, $this->validationRules);
+        } catch (HttpResponseException $e) {
+            return $this->respondWithValidationError();
+        }
+
+        $this->project->name         = $request->get('name');
+        $this->project->status_id    = $request->get('status');
+        $this->project->description  = $request->get('description');
+        $this->project->url          = $request->get('url');
+        $this->project->repository   = $request->get('repository');
         $this->project->completed_at = $request->get('completed_at');
-        $this->project->status_id = $request->get('status');
+        $this->project->is_active    = $request->get('is_active');
         $this->project->save();
 
         return $this->respondCreated('Project was created');
     }
 
     /**
-     * @param $projectId
+     * @param $id
      * @param Manager $fractal
      * @param ProjectTransformer $projectTransformer
+     *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($projectId, Manager $fractal, ProjectTransformer $projectTransformer)
+    public function show($id, Manager $fractal, ProjectTransformer $projectTransformer)
     {
-        $project = $this->project->findOrFail($projectId);
+        if (!$project = $this->project->with(['notes.links'])->limit(1)->find($id)) {
+            return $this->respondNotFound();
+        }
 
-        $item = new Item($project, $projectTransformer);
-
-        $data = $fractal->createData($item)->toArray();
+        $item    = new Item($project, $projectTransformer);
+        $data    = $fractal->createData($item)->toArray();
 
         return $this->respond($data);
     }
 
     /**
-     * @param $projectId
+     * @param $id
      * @param Request $request
+     *
      * @return mixed
      */
-    public function update($projectId, Request $request)
+    public function update($id, Request $request)
     {
-        $project = $this->project->findOrFail($projectId);
+        if (!$project = $this->project->with(['notes.links'])->limit(1)->find($id)) {
+            return $this->respondNotFound();
+        }
 
-        $this->validate($request, $this->validationRules);
+        // dd($this->validate($request, $this->validationRules));
 
-        $project->name = $request->get('name');
-        $project->description = $request->get('description');
-        $project->url = $request->get('url');
-        $project->repository = $request->get('repository');
+        try {
+            $this->validate($request, $this->validationRules);
+        } catch (HttpResponseException $e) {
+            return $this->respondWithValidationError();
+        }
+
+        $project->name         = $request->get('name');
+        $project->status_id    = $request->get('status');
+        $project->description  = $request->get('description');
+        $project->url          = $request->get('url');
+        $project->repository   = $request->get('repository');
+        $project->is_active    = $request->get('is_active');
         $project->completed_at = $request->get('completed_at');
-        $project->status_id = $request->get('status');
         $project->save();
 
         return $this->respondCreated('Project was updated');
     }
 
     /**
-     * @param $projectId
+     * @param $id
+     *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($projectId)
+    public function destroy($id)
     {
-        $project = $this->project->findOrFail($projectId);
+        if (!$project = $project = $this->project->with(['notes.links'])->limit(1)->find($id)) {
+            return $this->respondNotFound();
+        }
 
         $project->delete();
 
         return $this->respondOk('Project was deleted');
     }
-
 }

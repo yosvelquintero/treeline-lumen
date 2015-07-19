@@ -1,10 +1,17 @@
 <?php
-
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 use App\Status;
+use App\Project;
+use App\Note;
+use App\Link;
+use App\User;
 
-class DatabaseSeeder extends Seeder {
+/**
+* DatabaseSeeder
+*/
+class DatabaseSeeder extends Seeder
+{
 
     /**
      * Run the database seeds.
@@ -13,16 +20,27 @@ class DatabaseSeeder extends Seeder {
      */
     public function run()
     {
+        $this->dbTablesTruncate();
+
         Model::unguard();
 
         // $this->call('UserTableSeeder');
-        $pending = ['name' => 'Pending'];
-        $doing = ['name' => 'Doing'];
-        $completed = ['name' => 'Completed'];
-
-        Status::create($pending);
-        Status::create($doing);
-        Status::create($completed);
+        $this->call('StatusTableSeeder');
+        $this->call('ProjectTableSeeder');
+        $this->call('NoteTableSeeder');
+        $this->call('LinkTableSeeder');
+        $this->call('UserTableSeeder');
     }
 
+    public function dbTablesTruncate()
+    {
+        // Truncate
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Status::truncate();
+        Project::truncate();
+        Note::truncate();
+        Link::truncate();
+        User::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
 }

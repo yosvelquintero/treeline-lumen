@@ -3,7 +3,8 @@
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Note extends Model {
+class Note extends Model
+{
 
     /**
      * @var array
@@ -13,7 +14,11 @@ class Note extends Model {
     /**
      * @var array
      */
-    protected $fillable = ['stamp', 'title', 'description'];
+    protected $fillable = [
+        'stamp',
+        'title',
+        'description'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -40,5 +45,4 @@ class Note extends Model {
     {
         $this->attributes['stamp'] = Carbon::createFromFormat('d/m/Y', $value)->toDateString();
     }
-
 }
